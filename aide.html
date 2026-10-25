@@ -51,14 +51,15 @@
         
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             gap: 30px;
             margin-bottom: 30px;
         }
         
-        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 1024px) { .main-grid { grid-template-columns: minmax(0, 1fr); } }
         
         .panel {
+            min-width: 0;
             background: var(--bg-secondary);
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -115,12 +116,12 @@
         .toggle-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
         
         .format-section { margin-top: 20px; }
-        .format-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .format-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
         .format-item {
             display: flex; align-items: center; gap: 10px;
             padding: 10px; background: var(--bg-tertiary);
             border-radius: 6px; cursor: pointer; transition: all 0.2s;
-            border: 1px solid transparent;
+            border: 1px solid transparent; min-width: 0;
         }
         .format-item:hover { border-color: var(--border); background: rgba(13, 110, 253, 0.05); }
         .format-item input { display: none; }
@@ -134,15 +135,15 @@
             width: 18px; height: 18px; border: 2px solid var(--border);
             border-radius: 4px; position: relative; transition: all 0.2s; background: #ffffff;
         }
-        .format-label { font-size: 13px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
-        .format-desc { font-size: 11px; color: var(--text-secondary); margin-left: auto; }
+        .format-label { font-size: 13px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+        .format-desc { font-size: 11px; color: var(--text-secondary); margin-left: auto; text-align: right; }
         
         .custom-input { margin-top: 12px; display: flex; gap: 8px; }
         .custom-input input {
             flex: 1; padding: 10px 12px; background: #ffffff;
             border: 1px solid var(--border); border-radius: 6px;
             color: var(--text-primary); font-family: 'JetBrains Mono', monospace;
-            font-size: 13px; outline: none;
+            font-size: 13px; outline: none; min-width: 0;
         }
         .custom-input input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15); }
         .custom-input input::placeholder { color: var(--text-secondary); }
@@ -151,15 +152,16 @@
             padding: 10px 16px; background: #ffffff; border: 1px solid var(--border);
             color: var(--text-primary); border-radius: 6px; cursor: pointer;
             font-size: 13px; transition: all 0.2s; font-weight: 500;
+            white-space: nowrap;
         }
         .btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(13, 110, 253, 0.05); }
         .btn-primary { background: var(--accent-blue); border-color: var(--accent-blue); color: #ffffff; }
         .btn-primary:hover { background: #0b5ed7; border-color: #0b5ed7; color: #ffffff; }
         
         .exclude-section { margin-top: 20px; }
-        .exclude-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .exclude-title { font-size: 13px; color: var(--text-primary); font-weight: 500; }
-        .exclude-actions { display: flex; gap: 8px; }
+        .exclude-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .exclude-title { font-size: 13px; color: var(--text-primary); font-weight: 500; min-width: 0; }
+        .exclude-actions { display: flex; gap: 8px; flex-shrink: 0; }
         .btn-mini { padding: 4px 10px; font-size: 11px; }
         
         .exclude-input {
@@ -188,9 +190,9 @@
             border-radius: 8px; padding: 16px; margin-bottom: 12px; transition: all 0.2s;
         }
         .task-item:hover { border-color: var(--accent-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .task-name { font-weight: 600; font-size: 14px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
-        .task-status { font-size: 11px; padding: 4px 10px; border-radius: 12px; text-transform: uppercase; font-weight: 600; }
+        .task-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .task-name { font-weight: 600; font-size: 14px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; min-width: 0; overflow-wrap: anywhere; }
+        .task-status { font-size: 11px; padding: 4px 10px; border-radius: 12px; text-transform: uppercase; font-weight: 600; flex-shrink: 0; }
         .status-waiting { background: rgba(108, 117, 125, 0.15); color: #6c757d; }
         .status-processing { background: rgba(13, 110, 253, 0.15); color: var(--accent-blue); }
         .status-success { background: rgba(25, 135, 84, 0.15); color: var(--accent-green); }
@@ -198,19 +200,21 @@
         
         .task-progress { height: 4px; background: var(--bg-tertiary); border-radius: 2px; overflow: hidden; margin-bottom: 12px; }
         .task-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); transition: width 0.3s; width: 0%; }
-        .task-stats { display: flex; gap: 20px; font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; }
+        .task-stats { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; }
         .task-stats span { color: var(--text-primary); }
         .task-actions { display: flex; gap: 8px; }
         .btn-small { padding: 6px 12px; font-size: 12px; }
         
-        .global-actions { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .queue-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .queue-header .panel-title { margin: 0; flex-shrink: 0; }
+        .global-actions { display: flex; gap: 12px; flex-wrap: wrap; }
         
         .terminal-container { margin-top: 20px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
         .terminal-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border); }
         .terminal-title { font-size: 12px; font-weight: 600; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; }
         .terminal-actions { display: flex; gap: 8px; }
-        .terminal { padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; max-height: 500px; overflow-y: auto; color: var(--text-secondary); background: #fafbfc; }
-        .terminal-line { margin-bottom: 2px; padding: 2px 0; border-left: 2px solid transparent; padding-left: 8px; opacity: 0; animation: fadeIn 0.2s forwards; }
+        .terminal { padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; max-height: 500px; overflow-y: auto; color: var(--text-secondary); background: #fafbfc; overflow-wrap: anywhere; }
+        .terminal-line { margin-bottom: 2px; padding: 2px 0; border-left: 2px solid transparent; padding-left: 8px; opacity: 0; animation: fadeIn 0.2s forwards; overflow-wrap: anywhere; }
         @keyframes fadeIn { to { opacity: 1; } }
         .terminal-line.merge { color: var(--accent-green); border-left-color: var(--accent-green); }
         .terminal-line.skip { color: #6c757d; border-left-color: #adb5bd; }
@@ -280,6 +284,42 @@
         }
         .filter-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
         .filter-btn.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #ffffff; }
+
+        @media (min-width: 481px) and (max-width: 600px) {
+            .format-grid { grid-template-columns: minmax(0, 1fr); }
+        }
+        @media (max-width: 480px) {
+            body { overflow-x: hidden; }
+            .container { padding: 12px; }
+            header { padding: 24px 0 18px; margin-bottom: 16px; }
+            h1 { font-size: clamp(22px, 7vw, 28px); overflow-wrap: anywhere; }
+            .subtitle { font-size: 12px; }
+            .main-grid { gap: 16px; margin-bottom: 16px; }
+            .panel { padding: 16px; border-radius: 10px; }
+            .panel-title { font-size: 13px; letter-spacing: 0.3px; }
+            .drop-zone { padding: 28px 14px; }
+            .drop-text { font-size: 15px; }
+            .drop-hint { overflow-wrap: anywhere; }
+            .format-grid { grid-template-columns: minmax(0, 1fr); }
+            .category-tabs { gap: 6px; }
+            .tab-btn { padding: 6px 10px; font-size: 11px; }
+            .exclude-header { flex-wrap: wrap; align-items: flex-start; }
+            .exclude-title { flex: 1 0 100%; line-height: 1.45; }
+            .exclude-actions { margin-left: auto; }
+            .queue-header { flex-direction: column; align-items: stretch; gap: 10px; margin-bottom: 16px; }
+            .queue-header .panel-title { align-self: flex-start; }
+            .global-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+            .global-actions .btn { padding: 9px 4px; font-size: 12px; }
+            .task-item { padding: 12px; }
+            .task-stats { gap: 4px 12px; }
+            .terminal-header { flex-wrap: wrap; gap: 8px; }
+            .terminal { padding: 12px; max-height: 360px; }
+            .result-panel { padding: 16px; }
+            .stats-grid { gap: 10px; }
+            .stat-card { padding: 14px 8px; }
+            .stat-value { font-size: 20px; }
+            .selected-info, .hint { overflow-wrap: anywhere; }
+        }
     </style>
 </head>
 <body>
@@ -325,7 +365,7 @@
                     <label class="format-item"><input type="checkbox" value="aidl"><div class="check-box"></div><span class="format-label">.aidl</span><span class="format-desc">接口定义</span></label>
                 </div>
                 <div class="custom-input">
-                    <input type="text" id="customExt" placeholder="添加自定义扩展名 (如 rs, swift)">
+                    <input type="text" id="customExt" placeholder="添加扩展名 (如 rs, swift)">
                     <button class="btn" onclick="addCustom()">添加</button>
                 </div>
                 <div class="selected-info" id="selectedInfo">已选格式: <strong id="selectedFormats">java, kt, xml</strong> | 严格模式: <strong id="strictModeText">开启</strong></div>
@@ -390,8 +430,8 @@ desktop.ini</textarea>
             </div>
         </div>
         <div class="panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <div class="panel-title" style="margin: 0;">任务队列</div>
+            <div class="queue-header">
+                <div class="panel-title">任务队列</div>
                 <div class="global-actions">
                     <button class="btn btn-primary" onclick="startAll()">全部开始</button>
                     <button class="btn" onclick="clearCompleted()">清除已完成</button>
@@ -414,8 +454,8 @@ desktop.ini</textarea>
                     <button class="filter-btn" onclick="filterLog('error')">错误</button>
                 </div>
                 <div class="terminal" id="terminal">
-                    <div class="terminal-line info">等待任务... 请上传ZIP或TAR.GZ格式的AIDE项目压缩包</div>
-                    <div class="terminal-line info">修复版优化: 编码检测、二进制判断、路径匹配、错误处理</div>
+                    <div class="terminal-line info">等待任务...</div>
+                    
                 </div>
             </div>
         </div>
