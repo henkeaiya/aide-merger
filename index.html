@@ -1,796 +1,372 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIDE Pro Android源码整合工具</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap');
-        
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-tertiary: #e9ecef;
-            --accent-blue: #0d6efd;
-            --accent-green: #198754;
-            --accent-orange: #fd7e14;
-            --accent-red: #dc3545;
-            --accent-purple: #6f42c1;
-            --text-primary: #212529;
-            --text-secondary: #6c757d;
-            --border: #dee2e6;
-            --border-hover: #0d6efd;
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-        
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        
-        header {
-            text-align: center;
-            padding: 40px 0;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 30px;
-        }
-        
-        h1 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 32px;
-            color: var(--accent-blue);
-            margin-bottom: 10px;
-            letter-spacing: -0.5px;
-        }
-        
-        .subtitle { color: var(--text-secondary); font-size: 14px; font-weight: 300; }
-        
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        
-        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
-        
-        .panel {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .panel-title {
-            font-size: 14px; font-weight: 600; color: var(--accent-blue);
-            margin-bottom: 16px; text-transform: uppercase;
-            letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;
-        }
-        
-        .drop-zone {
-            border: 2px dashed var(--border); border-radius: 8px;
-            padding: 40px 20px; text-align: center;
-            background: var(--bg-tertiary); transition: all 0.3s;
-            cursor: pointer; position: relative; overflow: hidden;
-        }
-        .drop-zone:hover, .drop-zone.active {
-            border-color: var(--accent-blue);
-            background: rgba(13, 110, 253, 0.05);
-        }
-        .drop-zone input { display: none; }
-        
-        .drop-icon {
-            width: 48px; height: 48px; margin: 0 auto 16px;
-            background: var(--bg-secondary); border: 2px solid var(--border);
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; font-size: 24px; color: var(--accent-blue);
-            transition: all 0.3s;
-        }
-        .drop-zone:hover .drop-icon { border-color: var(--accent-blue); transform: scale(1.1); }
-        
-        .drop-text { font-size: 16px; color: var(--text-primary); margin-bottom: 8px; font-weight: 500; }
-        .drop-hint { font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; }
-        
-        .toggle-section { margin-top: 16px; padding: 16px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border); }
-        .toggle-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .toggle-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-        .toggle-switch {
-            position: relative; width: 50px; height: 26px;
-            background: #adb5bd; border: 1px solid #adb5bd;
-            border-radius: 13px; cursor: pointer; transition: all 0.3s;
-        }
-        .toggle-switch.active { background: var(--accent-green); border-color: var(--accent-green); }
-        .toggle-switch::after {
-            content: ''; position: absolute; top: 2px; left: 2px;
-            width: 20px; height: 20px; background: #ffffff;
-            border-radius: 50%; transition: all 0.3s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        .toggle-switch.active::after { left: 26px; background: #ffffff; }
-        .toggle-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
-        
-        .format-section { margin-top: 20px; }
-        .format-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .format-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px; background: var(--bg-tertiary);
-            border-radius: 6px; cursor: pointer; transition: all 0.2s;
-            border: 1px solid transparent;
-        }
-        .format-item:hover { border-color: var(--border); background: rgba(13, 110, 253, 0.05); }
-        .format-item input { display: none; }
-        .format-item input:checked + .check-box { background: var(--accent-blue); border-color: var(--accent-blue); }
-        .format-item input:checked + .check-box::after {
-            content: ''; width: 4px; height: 8px;
-            border: solid #ffffff; border-width: 0 2px 2px 0;
-            transform: rotate(45deg); position: absolute; top: 2px; left: 6px;
-        }
-        .check-box {
-            width: 18px; height: 18px; border: 2px solid var(--border);
-            border-radius: 4px; position: relative; transition: all 0.2s; background: #ffffff;
-        }
-        .format-label { font-size: 13px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
-        .format-desc { font-size: 11px; color: var(--text-secondary); margin-left: auto; }
-        
-        .custom-input { margin-top: 12px; display: flex; gap: 8px; }
-        .custom-input input {
-            flex: 1; padding: 10px 12px; background: #ffffff;
-            border: 1px solid var(--border); border-radius: 6px;
-            color: var(--text-primary); font-family: 'JetBrains Mono', monospace;
-            font-size: 13px; outline: none;
-        }
-        .custom-input input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15); }
-        .custom-input input::placeholder { color: var(--text-secondary); }
-        
-        .btn {
-            padding: 10px 16px; background: #ffffff; border: 1px solid var(--border);
-            color: var(--text-primary); border-radius: 6px; cursor: pointer;
-            font-size: 13px; transition: all 0.2s; font-weight: 500;
-        }
-        .btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(13, 110, 253, 0.05); }
-        .btn-primary { background: var(--accent-blue); border-color: var(--accent-blue); color: #ffffff; }
-        .btn-primary:hover { background: #0b5ed7; border-color: #0b5ed7; color: #ffffff; }
-        
-        .exclude-section { margin-top: 20px; }
-        .exclude-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .exclude-title { font-size: 13px; color: var(--text-primary); font-weight: 500; }
-        .exclude-actions { display: flex; gap: 8px; }
-        .btn-mini { padding: 4px 10px; font-size: 11px; }
-        
-        .exclude-input {
-            width: 100%; padding: 12px; background: #ffffff;
-            border: 1px solid var(--border); border-radius: 6px;
-            color: var(--text-primary); font-family: 'JetBrains Mono', monospace;
-            font-size: 12px; outline: none; min-height: 120px; resize: vertical;
-        }
-        .exclude-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15); }
-        .exclude-input::placeholder { color: var(--text-secondary); }
-        
-        .hint { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
-        
-        .preset-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-        .preset-tag {
-            padding: 4px 10px; background: var(--bg-secondary);
-            border: 1px solid var(--border); border-radius: 12px;
-            font-size: 11px; color: var(--text-secondary);
-            cursor: pointer; transition: all 0.2s;
-        }
-        .preset-tag:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
-        
-        .task-list { margin-top: 20px; max-height: 400px; overflow-y: auto; }
-        .task-item {
-            background: var(--bg-secondary); border: 1px solid var(--border);
-            border-radius: 8px; padding: 16px; margin-bottom: 12px; transition: all 0.2s;
-        }
-        .task-item:hover { border-color: var(--accent-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .task-name { font-weight: 600; font-size: 14px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
-        .task-status { font-size: 11px; padding: 4px 10px; border-radius: 12px; text-transform: uppercase; font-weight: 600; }
-        .status-waiting { background: rgba(108, 117, 125, 0.15); color: #6c757d; }
-        .status-processing { background: rgba(13, 110, 253, 0.15); color: var(--accent-blue); }
-        .status-success { background: rgba(25, 135, 84, 0.15); color: var(--accent-green); }
-        .status-error { background: rgba(220, 53, 69, 0.15); color: var(--accent-red); }
-        
-        .task-progress { height: 4px; background: var(--bg-tertiary); border-radius: 2px; overflow: hidden; margin-bottom: 12px; }
-        .task-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); transition: width 0.3s; width: 0%; }
-        .task-stats { display: flex; gap: 20px; font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; }
-        .task-stats span { color: var(--text-primary); }
-        .task-actions { display: flex; gap: 8px; }
-        .btn-small { padding: 6px 12px; font-size: 12px; }
-        
-        .global-actions { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-        
-        .terminal-container { margin-top: 20px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-        .terminal-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border); }
-        .terminal-title { font-size: 12px; font-weight: 600; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; }
-        .terminal-actions { display: flex; gap: 8px; }
-        .terminal { padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; max-height: 500px; overflow-y: auto; color: var(--text-secondary); background: #fafbfc; }
-        .terminal-line { margin-bottom: 2px; padding: 2px 0; border-left: 2px solid transparent; padding-left: 8px; opacity: 0; animation: fadeIn 0.2s forwards; }
-        @keyframes fadeIn { to { opacity: 1; } }
-        .terminal-line.merge { color: var(--accent-green); border-left-color: var(--accent-green); }
-        .terminal-line.skip { color: #6c757d; border-left-color: #adb5bd; }
-        .terminal-line.info { color: var(--accent-blue); border-left-color: var(--accent-blue); }
-        .terminal-line.warn { color: var(--accent-orange); border-left-color: var(--accent-orange); }
-        .terminal-line.error { color: var(--accent-red); border-left-color: var(--accent-red); }
-        .terminal-line.summary { color: var(--text-primary); border-left-color: var(--accent-purple); font-weight: 600; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
-        
-        .result-panel {
-            display: none; margin-top: 30px;
-            background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), rgba(25, 135, 84, 0.05));
-            border: 1px solid var(--border); border-radius: 12px; padding: 24px;
-        }
-        .result-panel.show { display: block; animation: slideUp 0.4s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .result-title { font-size: 18px; font-weight: 600; color: var(--accent-green); margin-bottom: 20px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-        .stat-card { background: #ffffff; padding: 20px; border-radius: 8px; text-align: center; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--accent-blue); margin-bottom: 4px; }
-        .stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn-download {
-            width: 100%; padding: 14px; background: var(--accent-green);
-            border: none; border-radius: 8px; color: #ffffff;
-            font-size: 14px; font-weight: 700; cursor: pointer;
-            transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(25, 135, 84, 0.3); background: #157347; }
-        
-        .aide-specific {
-            margin-top: 16px; padding: 12px;
-            background: rgba(13, 110, 253, 0.05);
-            border-left: 3px solid var(--accent-blue);
-            border-radius: 0 6px 6px 0;
-            font-size: 13px; color: var(--text-secondary);
-        }
-        .aide-specific strong { color: var(--accent-blue); }
-        
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
-        ::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6c757d; }
-        
-        .category-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-        .tab-btn {
-            padding: 6px 14px; background: var(--bg-tertiary);
-            border: 1px solid var(--border); border-radius: 20px;
-            font-size: 12px; color: var(--text-secondary);
-            cursor: pointer; transition: all 0.2s;
-        }
-        .tab-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
-        .tab-btn.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #ffffff; }
-        
-        .selected-info {
-            margin-top: 12px; padding: 10px; background: var(--bg-tertiary);
-            border-radius: 6px; font-size: 12px; color: var(--text-secondary);
-            font-family: 'JetBrains Mono', monospace; border: 1px solid var(--border);
-        }
-        .selected-info strong { color: var(--accent-blue); }
-        
-        .log-filter { display: flex; gap: 8px; padding: 10px 16px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-        .filter-btn {
-            padding: 4px 10px; background: #ffffff;
-            border: 1px solid var(--border); border-radius: 4px;
-            font-size: 11px; color: var(--text-secondary);
-            cursor: pointer; transition: all 0.2s;
-        }
-        .filter-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
-        .filter-btn.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #ffffff; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>NoCode 工具集</title>
+<meta name="description" content="实用的在线工具集合：AIDE 源码整合、2048、俄罗斯方块，全部在浏览器本地运行。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%232563eb'/%3E%3Cg fill='white'%3E%3Crect x='6' y='6' width='5' height='5' rx='1'/%3E%3Crect x='13' y='6' width='5' height='5' rx='1'/%3E%3Crect x='6' y='13' width='5' height='5' rx='1'/%3E%3Crect x='13' y='13' width='5' height='5' rx='1'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+    :root {
+        --bg: #f5f6f8;
+        --card: #ffffff;
+        --text: #111827;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --blue: #2563eb;
+        --yellow: #ca8a04;
+        --purple: #9333ea;
+        --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+    /* Header */
+    .site-header {
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+        padding: 18px 0;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(8px);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+        width: 40px; height: 40px; border-radius: 10px;
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; flex: none;
+    }
+    .brand h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.2px; }
+    .brand p { font-size: 12px; color: var(--muted); margin-top: -2px; }
+
+    /* Hero */
+    .hero { padding: 48px 0 8px; }
+    .hero h2 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; }
+    .hero p { margin-top: 8px; color: var(--muted); font-size: 15px; max-width: 620px; }
+    .hero .count {
+        display: inline-flex; align-items: center; gap: 6px;
+        margin-top: 16px; padding: 6px 12px;
+        background: #eef2ff; color: #4338ca;
+        border-radius: 999px; font-size: 12px; font-weight: 600;
+    }
+
+    /* Sections & grid */
+    section { padding: 28px 0; }
+    .section-title { font-size: 15px; font-weight: 700; color: #374151; margin-bottom: 14px; letter-spacing: .2px; }
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+    .card {
+        display: flex; flex-direction: column;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 22px;
+        text-decoration: none;
+        color: inherit;
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(17, 24, 39, .08); }
+    .card:active { transform: translateY(-1px); }
+    .card[data-tool="aide"]:hover { border-color: #93c5fd; }
+    .card[data-tool="2048"]:hover { border-color: #fcd34d; }
+    .card[data-tool="tetris"]:hover { border-color: #d8b4fe; }
+
+    .card-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .icon {
+        width: 50px; height: 50px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        flex: none;
+    }
+    .icon svg { width: 26px; height: 26px; }
+    .icon-aide { background: #dbeafe; color: #2563eb; }
+    .icon-2048 { background: #fef3c7; color: #b45309; font-weight: 800; font-size: 13px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .icon-tetris { background: #f3e8ff; color: #9333ea; }
+
+    .card h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
+    .card .sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .card .desc { font-size: 13.5px; color: #4b5563; line-height: 1.65; flex: 1; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tag { font-size: 11px; padding: 3px 9px; border-radius: 999px; font-weight: 500; }
+    .tag-blue { background: #dbeafe; color: #1d4ed8; }
+    .tag-green { background: #dcfce7; color: #15803d; }
+    .tag-yellow { background: #fef3c7; color: #a16207; }
+    .tag-purple { background: #f3e8ff; color: #7e22ce; }
+    .tag-red { background: #fee2e2; color: #b91c1c; }
+    .tag-gray { background: #f3f4f6; color: #4b5563; }
+
+    .open-row {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9;
+        font-size: 13px; font-weight: 600; color: var(--muted);
+    }
+    .card:hover .open-row { color: var(--blue); }
+    .open-row .arrow { transition: transform .18s ease; }
+    .card:hover .open-row .arrow { transform: translateX(3px); }
+
+    /* Footer */
+    .site-footer {
+        border-top: 1px solid var(--border);
+        margin-top: 40px;
+        padding: 24px 0 40px;
+        color: var(--muted);
+        font-size: 12.5px;
+    }
+    .site-footer strong { color: #374151; font-weight: 600; }
+
+    /* Viewer */
+    .viewer {
+        position: fixed; inset: 0; z-index: 100;
+        display: none;
+        flex-direction: column;
+        background: var(--bg);
+    }
+    .viewer.show { display: flex; }
+    .viewer-bar {
+        height: 56px; flex: none;
+        display: flex; align-items: center; gap: 10px;
+        padding: 0 10px;
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+        padding-top: env(safe-area-inset-top);
+        height: calc(56px + env(safe-area-inset-top));
+    }
+    .icon-btn {
+        width: 38px; height: 38px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        color: #374151; background: transparent; border: none; cursor: pointer;
+        flex: none; text-decoration: none;
+    }
+    .icon-btn:hover { background: #f3f4f6; }
+    .icon-btn svg { width: 20px; height: 20px; }
+    .viewer-title {
+        flex: 1; min-width: 0;
+        font-size: 15px; font-weight: 700;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .viewer iframe {
+        flex: 1; width: 100%; border: 0; background: #fff;
+    }
+    body.locked { overflow: hidden; }
+    @media (max-width: 600px) {
+        .hero { padding: 32px 0 4px; }
+        .hero h2 { font-size: 25px; }
+        .grid { grid-template-columns: 1fr; }
+    }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>AIDE Project Merger</h1>
-            <div class="subtitle">Android移动开发源码整合工具 </div>
-        </header>
-        <div class="main-grid">
-            <div class="panel">
-                <div class="panel-title"><span>输入源</span></div>
-                <div class="drop-zone" id="dropZone">
-                    <div class="drop-icon">📦</div>
-                    <div class="drop-text">拖放压缩包或点击选择</div>
-                    <div class="drop-hint">支持: ZIP / TAR.GZ / TGZ / TAR / TAR.BZ2 / TAR.XZ</div>
-                    <input type="file" id="fileInput" multiple accept=".zip,.tar.gz,.tgz,.tar,.tar.bz2,.tbz2,.tar.xz,.txz">
-                </div>
-                <div class="aide-specific">
-                    <strong>修复内容:</strong> 优化编码检测、修复二进制误判、改进路径匹配、增强错误处理
-                </div>
-                <div class="toggle-section">
-                    <div class="toggle-header">
-                        <span class="toggle-title">严格模式</span>
-                        <div class="toggle-switch active" id="strictModeToggle" onclick="toggleStrictMode()"></div>
-                    </div>
-                    <div class="toggle-desc" id="strictModeDesc">开启时仅合并选定格式的文件。关闭时合并所有非排除文件。</div>
-                </div>
+    <header class="site-header">
+        <div class="wrap brand">
+            <div class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
             </div>
-            <div class="panel">
-                <div class="panel-title"><span>目标格式 (多选)</span></div>
-                <div class="category-tabs">
-                    <button class="tab-btn active" data-cat="core">核心代码</button>
-                    <button class="tab-btn" data-cat="ui">界面资源</button>
-                    <button class="tab-btn" data-cat="config">配置文件</button>
-                    <button class="tab-btn" data-cat="native">NDK原生</button>
-                    <button class="tab-btn" data-cat="all">全部选择</button>
-                </div>
-                <div class="format-grid" id="formatGrid">
-                    <label class="format-item"><input type="checkbox" value="java" checked><div class="check-box"></div><span class="format-label">.java</span><span class="format-desc">Java主代码</span></label>
-                    <label class="format-item"><input type="checkbox" value="kt" checked><div class="check-box"></div><span class="format-label">.kt</span><span class="format-desc">Kotlin主代码</span></label>
-                    <label class="format-item"><input type="checkbox" value="xml" checked><div class="check-box"></div><span class="format-label">.xml</span><span class="format-desc">布局/清单</span></label>
-                    <label class="format-item"><input type="checkbox" value="gradle"><div class="check-box"></div><span class="format-label">.gradle</span><span class="format-desc">构建脚本</span></label>
-                    <label class="format-item"><input type="checkbox" value="c"><div class="check-box"></div><span class="format-label">.c/.cpp/.h</span><span class="format-desc">NDK原生代码</span></label>
-                    <label class="format-item"><input type="checkbox" value="mk"><div class="check-box"></div><span class="format-label">.mk/.cmake</span><span class="format-desc">原生构建</span></label>
-                    <label class="format-item"><input type="checkbox" value="properties"><div class="check-box"></div><span class="format-label">.properties</span><span class="format-desc">项目属性</span></label>
-                    <label class="format-item"><input type="checkbox" value="aidl"><div class="check-box"></div><span class="format-label">.aidl</span><span class="format-desc">接口定义</span></label>
-                </div>
-                <div class="custom-input">
-                    <input type="text" id="customExt" placeholder="添加自定义扩展名 (如 rs, swift)">
-                    <button class="btn" onclick="addCustom()">添加</button>
-                </div>
-                <div class="selected-info" id="selectedInfo">已选格式: <strong id="selectedFormats">java, kt, xml</strong> | 严格模式: <strong id="strictModeText">开启</strong></div>
-                <div class="exclude-section">
-                    <div class="exclude-header">
-                        <span class="exclude-title">自定义排除规则 (每行一个，支持通配符 *)</span>
-                        <div class="exclude-actions">
-                            <button class="btn btn-mini" onclick="resetExclude()">重置</button>
-                            <button class="btn btn-mini" onclick="clearExclude()">清空</button>
+            <div>
+                <h1>NoCode 工具集</h1>
+                <p>实用的在线工具集合</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <div class="hero">
+            <h2>一个页面，收好常用的工具</h2>
+            <p>无需安装，打开即用。所有文件解析与游戏运算都在你的浏览器里完成，数据不会上传到任何服务器。</p>
+            <span class="count">3 个工具 · 全部离线可用</span>
+        </div>
+
+        <section>
+            <div class="section-title">开发工具</div>
+            <div class="grid">
+                <a class="card" data-tool="aide" href="#aide">
+                    <div class="card-top">
+                        <div class="icon icon-aide" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                        </div>
+                        <div>
+                            <h3>AIDE 整合工具</h3>
+                            <div class="sub">Android 源码整合</div>
                         </div>
                     </div>
-                    <textarea class="exclude-input" id="excludeInput" placeholder="输入要排除的文件或目录模式...">*.png
-*.jpg
-*.jpeg
-*.gif
-*.webp
-*.svg
-*.bmp
-*.ico
-*.raw
-bin/
-gen/
-build/
-.git/
-.idea/
-.gradle/
-local.properties
-*.apk
-*.dex
-R.java
-BuildConfig.java
-*.class
-*.o
-*.so
-*.a
-*.jar
-*.war
-*.ear
-*.zip
-*.7z
-*.rar
-*.iml
-.classpath
-.project
-.DS_Store
-*.log
-*.tmp
-*.temp
-*.cache
-Thumbs.db
-desktop.ini</textarea>
-                    <div class="hint">支持: 文件名 (*.png), 目录名 (bin/), 路径片段 (src/test/), 通配符 (*Test*.java)</div>
-                    <div class="preset-tags">
-                        <span class="preset-tag" onclick="addExcludePattern('test/')">+ test/</span>
-                        <span class="preset-tag" onclick="addExcludePattern('androidTest/')">+ androidTest/</span>
-                        <span class="preset-tag" onclick="addExcludePattern('__pycache__/')">+ __pycache__/</span>
-                        <span class="preset-tag" onclick="addExcludePattern('node_modules/')">+ node_modules/</span>
-                        <span class="preset-tag" onclick="addExcludePattern('*.min.js')">+ *.min.js</span>
-                        <span class="preset-tag" onclick="addExcludePattern('*.map')">+ *.map</span>
+                    <p class="desc">把 AIDE 项目压缩包里的源代码智能合并成一个文本文件，支持格式筛选与排除规则，适合代码审查和归档。</p>
+                    <div class="tags">
+                        <span class="tag tag-green">ZIP</span>
+                        <span class="tag tag-blue">TAR.GZ</span>
+                        <span class="tag tag-purple">Java</span>
+                        <span class="tag tag-yellow">Kotlin</span>
                     </div>
-                </div>
+                    <div class="open-row"><span>打开工具</span><span class="arrow">→</span></div>
+                </a>
             </div>
-        </div>
-        <div class="panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <div class="panel-title" style="margin: 0;">任务队列</div>
-                <div class="global-actions">
-                    <button class="btn btn-primary" onclick="startAll()">全部开始</button>
-                    <button class="btn" onclick="clearCompleted()">清除已完成</button>
-                    <button class="btn" onclick="resetAll()">↺ 重置全部</button>
-                </div>
-            </div>
-            <div class="task-list" id="taskList"></div>
-            <div class="terminal-container">
-                <div class="terminal-header">
-                    <span class="terminal-title">处理日志 (详细)</span>
-                    <div class="terminal-actions">
-                        <button class="btn btn-mini" onclick="clearTerminal()">清空</button>
-                        <button class="btn btn-mini" onclick="copyTerminal()">复制</button>
+        </section>
+
+        <section>
+            <div class="section-title">休闲游戏</div>
+            <div class="grid">
+                <a class="card" data-tool="2048" href="#2048">
+                    <div class="card-top">
+                        <div class="icon icon-2048" aria-hidden="true">2048</div>
+                        <div>
+                            <h3>2048</h3>
+                            <div class="sub">数字合成游戏</div>
+                        </div>
                     </div>
-                </div>
-                <div class="log-filter">
-                    <button class="filter-btn active" onclick="filterLog('all')">全部</button>
-                    <button class="filter-btn" onclick="filterLog('merge')">已合并</button>
-                    <button class="filter-btn" onclick="filterLog('skip')">已跳过</button>
-                    <button class="filter-btn" onclick="filterLog('error')">错误</button>
-                </div>
-                <div class="terminal" id="terminal">
-                    <div class="terminal-line info">等待任务... 请上传ZIP或TAR.GZ格式的AIDE项目压缩包</div>
-                    <div class="terminal-line info">修复版优化: 编码检测、二进制判断、路径匹配、错误处理</div>
-                </div>
+                    <p class="desc">滑动屏幕或按方向键移动方块，相同数字相撞合并，看看你能不能合成出 2048。</p>
+                    <div class="tags">
+                        <span class="tag tag-yellow">益智</span>
+                        <span class="tag tag-green">休闲</span>
+                        <span class="tag tag-blue">自动模式</span>
+                    </div>
+                    <div class="open-row"><span>开始游戏</span><span class="arrow">→</span></div>
+                </a>
+
+                <a class="card" data-tool="tetris" href="#tetris">
+                    <div class="card-top">
+                        <div class="icon icon-tetris" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="10" y="3" width="6" height="6" rx="1"/><rect x="10" y="10" width="6" height="6" rx="1"/><rect x="17" y="10" width="4" height="6" rx="1"/><rect x="3" y="17" width="6" height="4" rx="1"/></svg>
+                        </div>
+                        <div>
+                            <h3>俄罗斯方块</h3>
+                            <div class="sub">经典方块消除</div>
+                        </div>
+                    </div>
+                    <p class="desc">操控不同形状的方块填满整行来消除得分，支持键盘和触屏操作，还带 AI 自动模式。</p>
+                    <div class="tags">
+                        <span class="tag tag-purple">经典</span>
+                        <span class="tag tag-red">消除</span>
+                        <span class="tag tag-blue">AI 自动</span>
+                    </div>
+                    <div class="open-row"><span>开始游戏</span><span class="arrow">→</span></div>
+                </a>
             </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="wrap">
+            <strong>关于 NoCode 工具集</strong><br>
+            AIDE 整合工具处理压缩包、2048 与俄罗斯方块运行游戏逻辑，全部在浏览器本地完成；页面所需脚本已随站点一起托管，不依赖外部 CDN。
         </div>
-        <div class="result-panel" id="resultPanel">
-            <div class="result-title">处理完成</div>
-            <div class="stats-grid">
-                <div class="stat-card"><div class="stat-value" id="statFiles">0</div><div class="stat-label">已合并</div></div>
-                <div class="stat-card"><div class="stat-value" id="statSkipped">0</div><div class="stat-label">已跳过</div></div>
-                <div class="stat-card"><div class="stat-value" id="statLines">0</div><div class="stat-label">代码行</div></div>
-                <div class="stat-card"><div class="stat-value" id="statSize">0KB</div><div class="stat-label">输出大小</div></div>
-            </div>
-            <button class="btn-download" onclick="downloadResult()">下载合并文件</button>
+    </footer>
+
+    <div class="viewer" id="viewer" aria-hidden="true">
+        <div class="viewer-bar">
+            <button class="icon-btn" id="backBtn" title="返回工具列表" aria-label="返回工具列表">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div class="viewer-title" id="viewerTitle">工具</div>
+            <a class="icon-btn" id="openBtn" href="#" target="_blank" rel="noopener" title="在新窗口打开" aria-label="在新窗口打开">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+            </a>
         </div>
+        <iframe id="frame" title="工具内容" allow="clipboard-write; fullscreen"></iframe>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+
     <script>
-        let tasks = [];
-        let currentTask = null;
-        let customExts = [];
-        let strictMode = true;
-        let currentLogFilter = 'all';
-        
-        const DEFAULT_EXCLUDE = `*.png
-*.jpg
-*.jpeg
-*.gif
-*.webp
-*.svg
-*.bmp
-*.ico
-*.raw
-bin/
-gen/
-build/
-.git/
-.idea/
-.gradle/
-local.properties
-*.apk
-*.dex
-R.java
-BuildConfig.java
-*.class
-*.o
-*.so
-*.a
-*.jar
-*.war
-*.ear
-*.zip
-*.7z
-*.rar
-*.iml
-.classpath
-.project
-.DS_Store
-*.log
-*.tmp
-*.temp
-*.cache
-Thumbs.db
-desktop.ini`;
-        
-        const formatMap = {
-            java: ['java'], kt: ['kt', 'kts'], xml: ['xml'], gradle: ['gradle'],
-            c: ['c', 'cpp', 'cc', 'cxx', 'h', 'hpp', 'hxx'], mk: ['mk', 'cmake'],
-            properties: ['properties'], aidl: ['aidl']
+        const TOOLS = {
+            aide:   { file: 'aide.html',   title: 'AIDE 整合工具' },
+            '2048': { file: '2048.html',   title: '2048' },
+            tetris: { file: 'tetris.html', title: '俄罗斯方块' }
         };
-        const categories = {
-            core: ['java', 'kt'], ui: ['xml'], config: ['gradle', 'properties'],
-            native: ['c', 'mk', 'aidl'], all: ['java', 'kt', 'xml', 'gradle', 'c', 'mk', 'properties', 'aidl']
-        };
-        
-        function toggleStrictMode() {
-            strictMode = !strictMode;
-            const toggle = document.getElementById('strictModeToggle');
-            const desc = document.getElementById('strictModeDesc');
-            if (strictMode) {
-                toggle.classList.add('active');
-                desc.textContent = '开启时仅合并选定格式的文件。关闭时合并所有非排除文件。';
-            } else {
-                toggle.classList.remove('active');
-                desc.textContent = '严格模式已关闭，将合并所有非排除文件。';
-            }
-            updateSelectedInfo();
-        }
-        
-        function updateSelectedInfo() {
-            const selectedNames = [...document.querySelectorAll('.format-item input:checked')].map(cb => {
-                const label = cb.closest('.format-item').querySelector('.format-label').textContent;
-                return label.replace('.', '');
-            });
-            customExts.forEach(e => selectedNames.push(e));
-            document.getElementById('selectedFormats').textContent = selectedNames.join(', ') || '无限制';
-            document.getElementById('strictModeText').textContent = strictMode ? '开启' : '关闭';
-        }
-        
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const formats = categories[btn.dataset.cat] || [];
-                document.querySelectorAll('.format-item input').forEach(cb => cb.checked = formats.includes(cb.value));
-                updateSelectedInfo();
+        const viewer = document.getElementById('viewer');
+        const frame = document.getElementById('frame');
+        const titleEl = document.getElementById('viewerTitle');
+        const openBtn = document.getElementById('openBtn');
+        const backBtn = document.getElementById('backBtn');
+        const baseTitle = document.title;
+        let current = null;
+
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                const id = card.dataset.tool;
+                if (!TOOLS[id]) return;
+                history.pushState({ tool: id }, '', '#' + id);
+                show(id);
             });
         });
-        document.querySelectorAll('.format-item input').forEach(cb => cb.addEventListener('change', updateSelectedInfo));
-        
-        function resetExclude() { document.getElementById('excludeInput').value = DEFAULT_EXCLUDE; addLog('已重置为默认排除规则', 'info'); }
-        function clearExclude() { document.getElementById('excludeInput').value = ''; addLog('已清空排除规则', 'warn'); }
-        function addExcludePattern(pattern) {
-            const textarea = document.getElementById('excludeInput');
-            const current = textarea.value.trim();
-            if (!current.split('\n').includes(pattern)) {
-                textarea.value = current ? current + '\n' + pattern : pattern;
-                addLog('添加排除规则: ' + pattern, 'info');
+
+        function route() {
+            const id = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
+            if (TOOLS[id]) {
+                show(id);
+            } else {
+                hide();
             }
         }
-        function getExcludePatterns() { return document.getElementById('excludeInput').value.split('\n').map(s => s.trim()).filter(s => s && !s.startsWith('#')); }
-        
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        dropZone.addEventListener('click', () => fileInput.click());
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('active'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
-        dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('active'); if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files); });
-        fileInput.addEventListener('change', (e) => { if (e.target.files.length) handleFiles(e.target.files); });
-        
-        function handleFiles(fileList) {
-            for (let file of fileList) {
-                const name = file.name.toLowerCase();
-                const isValid = name.endsWith('.zip') || name.endsWith('.tar.gz') || name.endsWith('.tgz') ||
-                               name.endsWith('.tar') || name.endsWith('.tar.bz2') || name.endsWith('.tbz2') ||
-                               name.endsWith('.tar.xz') || name.endsWith('.txz');
-                if (!isValid) { addLog('跳过不支持的文件: ' + file.name, 'error'); continue; }
-                tasks.push({ id: Date.now() + Math.random(), name: file.name, file: file, status: 'waiting', progress: 0, files: 0, skipped: 0, error: 0, lines: 0, size: 0, content: '', logs: [], logDetails: { merged: [], skipped: [], error: [] } });
-                addLog('添加任务: ' + file.name + ' (' + formatBytes(file.size) + ')', 'info');
+
+        function show(id) {
+            const tool = TOOLS[id];
+            if (current === id) return;
+            current = id;
+            titleEl.textContent = tool.title;
+            openBtn.href = tool.file;
+            if (!viewer.classList.contains('show') || frame.dataset.tool !== id) {
+                loadFrame(tool.file);
+                frame.dataset.tool = id;
             }
-            renderTasks();
-            fileInput.value = '';
+            viewer.classList.add('show');
+            viewer.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('locked');
+            document.title = tool.title + ' · ' + baseTitle;
         }
-        
-        function renderTasks() {
-            const container = document.getElementById('taskList');
-            if (tasks.length === 0) { container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px;">暂无任务，请上传压缩包</div>'; return; }
-            container.innerHTML = tasks.map(task => `
-                <div class="task-item" data-id="${task.id}">
-                    <div class="task-header">
-                        <span class="task-name">${task.name}</span>
-                        <span class="task-status status-${task.status}">${getStatusText(task.status)}</span>
-                    </div>
-                    <div class="task-progress"><div class="task-progress-fill" style="width: ${task.progress}%"></div></div>
-                    <div class="task-stats"><span>合并: ${task.files}</span><span>跳过: ${task.skipped}</span><span>错误: ${task.error}</span><span>行数: ${task.lines.toLocaleString()}</span></div>
-                    <div class="task-actions">
-                        ${task.status === 'waiting' ? `<button class="btn btn-small btn-primary" onclick="startTask(${task.id})">开始</button>` : ''}
-                        ${task.status === 'success' ? `<button class="btn btn-small" onclick="downloadTask(${task.id})">下载</button>` : ''}
-                        ${task.status === 'error' ? `<button class="btn btn-small" onclick="retryTask(${task.id})">重试</button>` : ''}
-                        <button class="btn btn-small" onclick="removeTask(${task.id})">删除</button>
-                    </div>
-                </div>`).join('');
+
+        function hide() {
+            if (!current) return;
+            current = null;
+            viewer.classList.remove('show');
+            viewer.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('locked');
+            loadFrame('about:blank');
+            frame.dataset.tool = '';
+            document.title = baseTitle;
         }
-        function getStatusText(status) { return { waiting: '等待中', processing: '处理中', success: '完成', error: '失败' }[status] || status; }
-        
-        function addLog(msg, type) {
-            if (!type) type = 'info';
-            const terminal = document.getElementById('terminal');
-            const line = document.createElement('div');
-            line.className = 'terminal-line ' + type;
-            line.textContent = msg;
-            line.dataset.type = type;
-            terminal.appendChild(line);
-            terminal.scrollTop = terminal.scrollHeight;
-            if (currentTask) { currentTask.logs.push({ msg, type, time: Date.now() }); if (type === 'merge') currentTask.logDetails.merged.push(msg); else if (type === 'skip') currentTask.logDetails.skipped.push(msg); else if (type === 'error') currentTask.logDetails.error.push(msg); }
-            if (currentLogFilter !== 'all' && type !== currentLogFilter && type !== 'info' && type !== 'summary') line.style.display = 'none';
-        }
-        
-        function filterLog(type) {
-            currentLogFilter = type;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            if (event && event.target) event.target.classList.add('active');
-            document.querySelectorAll('.terminal-line').forEach(line => {
-                const lineType = line.dataset.type || 'info';
-                line.style.display = (type === 'all' || lineType === type || lineType === 'info' || lineType === 'summary') ? 'block' : 'none';
-            });
-        }
-        function clearTerminal() { document.getElementById('terminal').innerHTML = ''; }
-        function copyTerminal() {
-            const text = Array.from(document.getElementById('terminal').children).map(line => line.textContent).join('\n');
-            navigator.clipboard.writeText(text).then(() => addLog('日志已复制到剪贴板', 'success'));
-        }
-        
-        function checkExclude(filePath, patterns) {
-            const pathLower = filePath.toLowerCase();
-            const fileName = filePath.split('/').pop().toLowerCase();
-            for (const pattern of patterns) {
-                if (!pattern) continue;
-                const pLower = pattern.toLowerCase();
-                if (pattern.includes('*')) {
-                    const regex = new RegExp('^' + pLower.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$|^.*\/' + pLower.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
-                    if (regex.test(fileName) || regex.test(pathLower)) return { excluded: true, reason: '匹配: ' + pattern };
-                } else if (pattern.endsWith('/')) {
-                    const dirName = pLower.slice(0, -1);
-                    if (pathLower.includes('/' + dirName + '/') || pathLower.startsWith(dirName + '/')) return { excluded: true, reason: '在目录: ' + pattern };
-                } else if (fileName === pLower) return { excluded: true, reason: '文件名: ' + pattern };
-                else if (pathLower.includes('/' + pLower + '/') || pathLower.includes(pLower)) return { excluded: true, reason: '路径包含: ' + pattern };
-            }
-            return { excluded: false, reason: null };
-        }
-        
-        function checkFormat(filePath, allowedExts) {
-            if (!strictMode) return { match: true, reason: '严格模式关闭' };
-            if (!allowedExts || allowedExts.length === 0) return { match: true, reason: '无格式限制' };
-            const fileName = filePath.split('/').pop().toLowerCase();
-            const criticalFiles = ['androidmanifest.xml', 'build.gradle', 'settings.gradle', 'gradle.properties', 'local.properties', '.classpath', '.project'];
-            if (criticalFiles.includes(fileName)) return { match: true, reason: '关键配置文件' };
-            let ext = '';
-            if (fileName.includes('.')) {
-                const parts = fileName.split('.');
-                ext = (parts.length > 2 && parts[parts.length - 1] === 'gz' && parts[parts.length - 2] === 'tar') ? 'tar.gz' : parts.pop();
-            }
-            if (allowedExts.includes(ext)) return { match: true, reason: '格式: .' + ext };
-            if (!ext && allowedExts.some(e => fileName.includes(e))) return { match: true, reason: '无扩展名匹配' };
-            return { match: false, reason: '格式 .' + ext + ' 不在 [' + allowedExts.join(', ') + '] 中' };
-        }
-        
-        function isBinaryContent(content) {
-            if (!content || content.length === 0) return false;
-            const nullCount = (content.match(/\0/g) || []).length;
-            if (nullCount / content.length > 0.01) return true;
-            const sample = content.slice(0, 1024);
-            const nonPrintable = sample.split('').filter(c => { const code = c.charCodeAt(0); return code !== 10 && code !== 13 && code !== 9 && (code < 32 || code > 126); }).length;
-            return nonPrintable / sample.length > 0.1;
-        }
-        
-        async function startTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if (!task || task.status !== 'waiting') return;
-            const allowedExts = getSelectedExtensions();
-            const excludePatterns = getExcludePatterns();
-            task.status = 'processing'; task.progress = 5; task.files = 0; task.skipped = 0; task.error = 0; task.lines = 0; task.size = 0; task.content = ''; task.logs = []; task.logDetails = { merged: [], skipped: [], error: [] };
-            currentTask = task;
-            renderTasks(); clearTerminal();
-            addLog('========== 开始处理: ' + task.name + ' ==========', 'info');
-            addLog('严格模式: ' + (strictMode ? '开启' : '关闭'), 'info');
-            addLog('选定格式: ' + (allowedExts.join(', ') || '无限制'), 'info');
-            addLog('排除规则: ' + excludePatterns.length + ' 条', 'info');
+
+        // 用 location.replace 切换 iframe，避免污染浏览器联合历史记录
+        function loadFrame(file) {
+            const url = file === 'about:blank' ? 'about:blank' : new URL(file, location.href).href;
             try {
-                addLog('正在解压压缩包...', 'info');
-                const files = await extractArchive(task.file);
-                addLog('解压完成: ' + files.length + ' 个文件', 'success');
-                let output = '================================================================================\nAIDE PROJECT MERGER OUTPUT\nArchive: ' + task.name + '\nGenerated: ' + new Date().toISOString() + '\nStrict Mode: ' + strictMode + '\nAllowed Formats: ' + (allowedExts.join(', ') || 'All non-excluded') + '\nExclude Rules: ' + excludePatterns.length + ' patterns\nTotal Files in Archive: ' + files.length + '\n================================================================================\n\n';
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    task.progress = 10 + Math.round(((i + 1) / files.length * 85));
-                    if (i % 10 === 0) renderTasks();
-                    const excludeCheck = checkExclude(file.name, excludePatterns);
-                    if (excludeCheck.excluded) { task.skipped++; addLog('[SKIP] ' + file.name + ' | ' + excludeCheck.reason, 'skip'); continue; }
-                    const formatCheck = checkFormat(file.name, allowedExts);
-                    if (!formatCheck.match) { task.skipped++; addLog('[SKIP] ' + file.name + ' | ' + formatCheck.reason, 'skip'); continue; }
-                    try {
-                        let content = await file.async('string');
-                        if (isBinaryContent(content, file.name)) { task.skipped++; addLog('[SKIP] ' + file.name + ' | 检测到二进制内容', 'skip'); continue; }
-                        if (content.length > 5 * 1024 * 1024) { task.skipped++; addLog('[SKIP] ' + file.name + ' | 文件过大 (' + formatBytes(content.length) + ')', 'skip'); continue; }
-                        const lines = content.split('\n').length;
-                        task.lines += lines; task.files++;
-                        output += '--------------------------------------------------------------------------------\nFILE: ' + file.name + '\nSIZE: ' + formatBytes(content.length) + ' | LINES: ' + lines + ' | REASON: ' + formatCheck.reason + '\n--------------------------------------------------------------------------------\n\n' + content + '\n\n';
-                        addLog('[MERGE] ' + file.name + ' | ' + formatBytes(content.length) + ' | ' + lines + '行 | ' + formatCheck.reason, 'merge');
-                    } catch (e) { task.error++; addLog('[ERROR] ' + file.name + ' | ' + e.message, 'error'); }
-                }
-                task.content = output; task.size = output.length; task.status = 'success'; task.progress = 100;
-                addLog('', 'info'); addLog('========== 处理完成 ==========', 'summary');
-                addLog('已合并: ' + task.files + ' 个文件', 'summary'); addLog('已跳过: ' + task.skipped + ' 个文件', 'summary');
-                addLog('错误: ' + task.error + ' 个文件', 'summary'); addLog('总行数: ' + task.lines.toLocaleString() + ' 行', 'summary'); addLog('输出大小: ' + formatBytes(task.size), 'summary');
-                document.getElementById('statFiles').textContent = task.files; document.getElementById('statSkipped').textContent = task.skipped;
-                document.getElementById('statLines').textContent = task.lines.toLocaleString(); document.getElementById('statSize').textContent = formatBytes(task.size);
-                document.getElementById('resultPanel').classList.add('show');
-            } catch (e) { task.status = 'error'; task.progress = 0; addLog('[FATAL] ' + e.message, 'error'); }
-            renderTasks();
-        }
-        
-        async function extractArchive(file) {
-            const name = file.name.toLowerCase();
-            const buffer = await file.arrayBuffer();
-            if (name.endsWith('.zip')) {
-                const zip = await JSZip.loadAsync(buffer);
-                const files = [];
-                zip.forEach((path, obj) => { if (!obj.dir && !path.startsWith('__MACOSX/') && !path.includes('.DS_Store')) files.push({ name: path, async: (type) => type === 'base64' ? obj.async('base64') : obj.async('string') }); });
-                return files;
-            } else if (name.endsWith('.tar.gz') || name.endsWith('.tgz')) {
-                try { return extractTar(pako.inflate(new Uint8Array(buffer)).buffer); } catch (e) { throw new Error('GZIP解压失败: ' + e.message); }
-            } else if (name.endsWith('.tar')) return extractTar(buffer);
-            throw new Error('不支持的压缩格式: ' + name);
-        }
-        
-        function extractTar(buffer) {
-            const files = [];
-            const data = new Uint8Array(buffer);
-            let offset = 0;
-            try {
-                while (offset < data.length - 512) {
-                    const header = data.slice(offset, offset + 512);
-                    let name = '';
-                    for (let i = 0; i < 100; i++) { if (header[i] === 0) break; name += String.fromCharCode(header[i]); }
-                    let sizeStr = '';
-                    for (let i = 124; i < 136; i++) { if (header[i] === 0) break; sizeStr += String.fromCharCode(header[i]); }
-                    const size = parseInt(sizeStr, 8) || 0;
-                    const typeFlag = header[156];
-                    if (!name) break;
-                    if (name === '././@LongLink' && typeFlag === 76) {
-                        let longName = '';
-                        for (let i = 0; i < size; i++) { const char = data[offset + 512 + i]; if (char === 0) break; longName += String.fromCharCode(char); }
-                        offset += 512 + Math.ceil(size / 512) * 512;
-                        const nextHeader = data.slice(offset, offset + 512);
-                        let nextSizeStr = '';
-                        for (let i = 124; i < 136; i++) { if (nextHeader[i] === 0) break; nextSizeStr += String.fromCharCode(nextHeader[i]); }
-                        const nextSize = parseInt(nextSizeStr, 8) || 0;
-                        const nextType = nextHeader[156];
-                        if (nextType === 0 || nextType === 48) {
-                            if (nextSize > 0 && nextSize < 50 * 1024 * 1024) {
-                                files.push({ name: longName, async: () => Promise.resolve(new TextDecoder().decode(data.slice(offset + 512, offset + 512 + nextSize))) });
-                            }
-                        }
-                        offset += 512 + Math.ceil(nextSize / 512) * 512;
-                        continue;
-                    }
-                    if (typeFlag === 0 || typeFlag === 48) {
-                        if (size > 0 && size < 50 * 1024 * 1024) {
-                            files.push({ name, async: () => Promise.resolve(new TextDecoder().decode(data.slice(offset + 512, offset + 512 + size))) });
-                        }
-                    }
-                    offset += 512 + Math.ceil(size / 512) * 512;
-                }
-            } catch (e) { console.error('TAR解析错误:', e); }
-            return files;
-        }
-        
-        function getSelectedExtensions() {
-            const exts = new Set();
-            [...document.querySelectorAll('.format-item input:checked')].forEach(cb => { if (formatMap[cb.value]) formatMap[cb.value].forEach(e => exts.add(e)); });
-            customExts.forEach(e => exts.add(e));
-            return Array.from(exts);
-        }
-        function addCustom() {
-            const val = document.getElementById('customExt').value.trim().toLowerCase().replace(/^\./, '');
-            if (val && !customExts.includes(val)) { customExts.push(val); addLog('添加自定义格式: .' + val, 'info'); document.getElementById('customExt').value = ''; updateSelectedInfo(); }
-        }
-        function startAll() { const waiting = tasks.filter(t => t.status === 'waiting'); if (waiting.length === 0) { addLog('没有等待中的任务', 'warn'); return; } waiting.forEach((t, i) => setTimeout(() => startTask(t.id), i * 500)); }
-        function clearCompleted() { const before = tasks.length; tasks = tasks.filter(t => t.status !== 'success'); addLog('清除 ' + (before - tasks.length) + ' 个已完成任务', 'info'); renderTasks(); }
-        function resetAll() { tasks.forEach(t => { if (t.status !== 'processing') { t.status = 'waiting'; t.progress = 0; t.content = ''; t.files = 0; t.skipped = 0; t.error = 0; t.lines = 0; t.size = 0; t.logs = []; t.logDetails = { merged: [], skipped: [], error: [] }; } }); addLog('重置所有未运行任务', 'info'); renderTasks(); }
-        function removeTask(id) { tasks = tasks.filter(t => t.id !== id); renderTasks(); }
-        function retryTask(id) { const task = tasks.find(t => t.id === id); if (task) { task.status = 'waiting'; task.progress = 0; task.content = ''; task.files = 0; task.skipped = 0; task.error = 0; task.lines = 0; task.size = 0; task.logs = []; task.logDetails = { merged: [], skipped: [], error: [] }; renderTasks(); addLog('重置任务: ' + task.name, 'info'); } }
-        function downloadTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if (task && task.content) {
-                const filename = task.name.replace(/\.[^.]+$/, '').replace(/[^a-z0-9]/gi, '_') + '_merged.txt';
-                const blob = new Blob([task.content], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = filename;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                addLog('下载: ' + filename, 'success');
+                frame.contentWindow.location.replace(url);
+            } catch (e) {
+                frame.src = url;
             }
         }
-        function downloadResult() { if (currentTask && currentTask.content) downloadTask(currentTask.id); }
-        function formatBytes(bytes) { if (bytes === 0) return '0 B'; const k = 1024; const sizes = ['B', 'KB', 'MB', 'GB']; const i = Math.floor(Math.log(bytes) / Math.log(k)); return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]; }
-        
-        document.getElementById('customExt').addEventListener('keypress', (e) => { if (e.key === 'Enter') addCustom(); });
-        updateSelectedInfo(); renderTasks();
+
+        backBtn.addEventListener('click', () => {
+            const state = history.state;
+            if (state && state.tool && !state.direct) {
+                history.back();
+            } else {
+                history.replaceState(null, '', location.pathname + location.search);
+                route();
+            }
+        });
+
+        window.addEventListener('hashchange', route);
+        window.addEventListener('popstate', route);
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && current) backBtn.click();
+        });
+
+        // 直接打开带 hash 的链接时，把当前 URL 记为可回退的入口
+        if (location.hash && TOOLS[decodeURIComponent(location.hash.replace(/^#\/?/, ''))]) {
+            history.replaceState({ tool: decodeURIComponent(location.hash.replace(/^#\/?/, '')), direct: true }, '', location.hash);
+        }
+        route();
     </script>
 </body>
 </html>
