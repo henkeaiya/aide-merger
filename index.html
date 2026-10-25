@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>NoCode 工具集</title>
+<title>GitHub 工具集</title>
 <meta name="description" content="实用的在线工具集合：AIDE 源码整合、2048、俄罗斯方块，全部在浏览器本地运行。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%232563eb'/%3E%3Cg fill='white'%3E%3Crect x='6' y='6' width='5' height='5' rx='1'/%3E%3Crect x='13' y='6' width='5' height='5' rx='1'/%3E%3Crect x='6' y='13' width='5' height='5' rx='1'/%3E%3Crect x='13' y='13' width='5' height='5' rx='1'/%3E%3C/g%3E%3C/svg%3E">
 <style>
@@ -53,12 +53,6 @@
     .hero { padding: 48px 0 8px; }
     .hero h2 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; }
     .hero p { margin-top: 8px; color: var(--muted); font-size: 15px; max-width: 620px; }
-    .hero .count {
-        display: inline-flex; align-items: center; gap: 6px;
-        margin-top: 16px; padding: 6px 12px;
-        background: #eef2ff; color: #4338ca;
-        border-radius: 999px; font-size: 12px; font-weight: 600;
-    }
 
     /* Sections & grid */
     section { padding: 28px 0; }
@@ -128,40 +122,6 @@
     }
     .site-footer strong { color: #374151; font-weight: 600; }
 
-    /* Viewer */
-    .viewer {
-        position: fixed; inset: 0; z-index: 100;
-        display: none;
-        flex-direction: column;
-        background: var(--bg);
-    }
-    .viewer.show { display: flex; }
-    .viewer-bar {
-        height: 56px; flex: none;
-        display: flex; align-items: center; gap: 10px;
-        padding: 0 10px;
-        background: var(--card);
-        border-bottom: 1px solid var(--border);
-        padding-top: env(safe-area-inset-top);
-        height: calc(56px + env(safe-area-inset-top));
-    }
-    .icon-btn {
-        width: 38px; height: 38px; border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        color: #374151; background: transparent; border: none; cursor: pointer;
-        flex: none; text-decoration: none;
-    }
-    .icon-btn:hover { background: #f3f4f6; }
-    .icon-btn svg { width: 20px; height: 20px; }
-    .viewer-title {
-        flex: 1; min-width: 0;
-        font-size: 15px; font-weight: 700;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .viewer iframe {
-        flex: 1; width: 100%; border: 0; background: #fff;
-    }
-    body.locked { overflow: hidden; }
     @media (max-width: 600px) {
         .hero { padding: 32px 0 4px; }
         .hero h2 { font-size: 25px; }
@@ -176,7 +136,7 @@
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
             </div>
             <div>
-                <h1>NoCode 工具集</h1>
+                <h1>GitHub 工具集</h1>
                 <p>实用的在线工具集合</p>
             </div>
         </div>
@@ -186,13 +146,12 @@
         <div class="hero">
             <h2>一个页面，收好常用的工具</h2>
             <p>无需安装，打开即用。所有文件解析与游戏运算都在你的浏览器里完成，数据不会上传到任何服务器。</p>
-            <span class="count">3 个工具 · 全部离线可用</span>
         </div>
 
         <section>
             <div class="section-title">开发工具</div>
             <div class="grid">
-                <a class="card" data-tool="aide" href="#aide">
+                <a class="card" data-tool="aide" href="aide.html">
                     <div class="card-top">
                         <div class="icon icon-aide" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
@@ -217,7 +176,7 @@
         <section>
             <div class="section-title">休闲游戏</div>
             <div class="grid">
-                <a class="card" data-tool="2048" href="#2048">
+                <a class="card" data-tool="2048" href="2048.html">
                     <div class="card-top">
                         <div class="icon icon-2048" aria-hidden="true">2048</div>
                         <div>
@@ -234,7 +193,7 @@
                     <div class="open-row"><span>开始游戏</span><span class="arrow">→</span></div>
                 </a>
 
-                <a class="card" data-tool="tetris" href="#tetris">
+                <a class="card" data-tool="tetris" href="tetris.html">
                     <div class="card-top">
                         <div class="icon icon-tetris" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="10" y="3" width="6" height="6" rx="1"/><rect x="10" y="10" width="6" height="6" rx="1"/><rect x="17" y="10" width="4" height="6" rx="1"/><rect x="3" y="17" width="6" height="4" rx="1"/></svg>
@@ -258,115 +217,10 @@
 
     <footer class="site-footer">
         <div class="wrap">
-            <strong>关于 NoCode 工具集</strong><br>
-            AIDE 整合工具处理压缩包、2048 与俄罗斯方块运行游戏逻辑，全部在浏览器本地完成；页面所需脚本已随站点一起托管，不依赖外部 CDN。
+            <strong>关于 GitHub 工具集</strong><br>
+            AIDE 整合工具、2048 和俄罗斯方块，打开即可使用，无需安装。
         </div>
     </footer>
 
-    <div class="viewer" id="viewer" aria-hidden="true">
-        <div class="viewer-bar">
-            <button class="icon-btn" id="backBtn" title="返回工具列表" aria-label="返回工具列表">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-            </button>
-            <div class="viewer-title" id="viewerTitle">工具</div>
-            <a class="icon-btn" id="openBtn" href="#" target="_blank" rel="noopener" title="在新窗口打开" aria-label="在新窗口打开">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
-            </a>
-        </div>
-        <iframe id="frame" title="工具内容" allow="clipboard-write; fullscreen"></iframe>
-    </div>
-
-    <script>
-        const TOOLS = {
-            aide:   { file: 'aide.html',   title: 'AIDE 整合工具' },
-            '2048': { file: '2048.html',   title: '2048' },
-            tetris: { file: 'tetris.html', title: '俄罗斯方块' }
-        };
-        const viewer = document.getElementById('viewer');
-        const frame = document.getElementById('frame');
-        const titleEl = document.getElementById('viewerTitle');
-        const openBtn = document.getElementById('openBtn');
-        const backBtn = document.getElementById('backBtn');
-        const baseTitle = document.title;
-        let current = null;
-
-        document.querySelectorAll('.card').forEach(card => {
-            card.addEventListener('click', (e) => {
-                e.preventDefault();
-                const id = card.dataset.tool;
-                if (!TOOLS[id]) return;
-                history.pushState({ tool: id }, '', '#' + id);
-                show(id);
-            });
-        });
-
-        function route() {
-            const id = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
-            if (TOOLS[id]) {
-                show(id);
-            } else {
-                hide();
-            }
-        }
-
-        function show(id) {
-            const tool = TOOLS[id];
-            if (current === id) return;
-            current = id;
-            titleEl.textContent = tool.title;
-            openBtn.href = tool.file;
-            if (!viewer.classList.contains('show') || frame.dataset.tool !== id) {
-                loadFrame(tool.file);
-                frame.dataset.tool = id;
-            }
-            viewer.classList.add('show');
-            viewer.setAttribute('aria-hidden', 'false');
-            document.body.classList.add('locked');
-            document.title = tool.title + ' · ' + baseTitle;
-        }
-
-        function hide() {
-            if (!current) return;
-            current = null;
-            viewer.classList.remove('show');
-            viewer.setAttribute('aria-hidden', 'true');
-            document.body.classList.remove('locked');
-            loadFrame('about:blank');
-            frame.dataset.tool = '';
-            document.title = baseTitle;
-        }
-
-        // 用 location.replace 切换 iframe，避免污染浏览器联合历史记录
-        function loadFrame(file) {
-            const url = file === 'about:blank' ? 'about:blank' : new URL(file, location.href).href;
-            try {
-                frame.contentWindow.location.replace(url);
-            } catch (e) {
-                frame.src = url;
-            }
-        }
-
-        backBtn.addEventListener('click', () => {
-            const state = history.state;
-            if (state && state.tool && !state.direct) {
-                history.back();
-            } else {
-                history.replaceState(null, '', location.pathname + location.search);
-                route();
-            }
-        });
-
-        window.addEventListener('hashchange', route);
-        window.addEventListener('popstate', route);
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && current) backBtn.click();
-        });
-
-        // 直接打开带 hash 的链接时，把当前 URL 记为可回退的入口
-        if (location.hash && TOOLS[decodeURIComponent(location.hash.replace(/^#\/?/, ''))]) {
-            history.replaceState({ tool: decodeURIComponent(location.hash.replace(/^#\/?/, '')), direct: true }, '', location.hash);
-        }
-        route();
-    </script>
 </body>
 </html>
